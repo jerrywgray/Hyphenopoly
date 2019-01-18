@@ -11,7 +11,8 @@
 /* eslint no-console: 0 */
 "use strict";
 
-const fs = require("fs");
+//const fs = require("fs");
+const http = require("http");
 
 const {StringDecoder} = require("string_decoder");
 
@@ -64,11 +65,11 @@ H.binaries = new Map();
  * @param {function} cb - callback function
  * @returns {undefined}
  */
-function readFile(file, cb) {
-    /* eslint-disable security/detect-non-literal-fs-filename */
-    fs.readFile(file, cb);
-    /* eslint-enable security/detect-non-literal-fs-filename */
-}
+// function readFile(file, cb) {
+//     /* eslint-disable security/detect-non-literal-fs-filename */
+//     fs.readFile(file, cb);
+//     /* eslint-enable security/detect-non-literal-fs-filename */
+// }
 
 /**
  * Before using browserify comment-out or delete the readFile-function above
@@ -79,21 +80,21 @@ function readFile(file, cb) {
 
 /**
  * Browserify-compatible readFile:
- * function readFile(file, cb) {
- *     const rawData = [];
- *     http.get(file, function c(res) {
- *         res.on("data", function onData(chunk) {
- *             rawData.push(chunk);
- *         });
- *         res.on("end", function onEnd() {
- *             cb(null, Buffer.concat(rawData));
- *         });
- *         res.on("error", function onErr(err) {
- *             cb(err, rawData);
- *         });
- *     });
- * }
  */
+function readFile(file, cb) {
+    const rawData = [];
+    http.get(file, function c(res) {
+        res.on("data", function onData(chunk) {
+            rawData.push(chunk);
+        });
+        res.on("end", function onEnd() {
+            cb(null, Buffer.concat(rawData));
+        });
+        res.on("error", function onErr(err) {
+            cb(err, rawData);
+        });
+    });
+}
 
 /**
  * Read a wasm file, dispatch "engineLoaded" on success
